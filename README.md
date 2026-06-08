@@ -1,40 +1,19 @@
 # Arène des algorithmes
-
 ## Présentation du projet
 
-L'objectif de ce projet est de construire un pipeline complet de
-Machine Learning et de comparer plusieurs algorithmes de classification.
+L'objectif de ce projet est de comparer plusieurs algorithmes de
+classification sur différents datasets.
 
-Les étapes réalisées sont :
-
-* charger et explorer les données ;
-* séparer les données en jeu d'entraînement et jeu de test ;
-* entraîner plusieurs modèles ;
-* comparer leurs accuracies ;
-* tester un clustering non supervisé ;
-* afficher les résultats avec des graphiques ;
-* étudier l'effet du scaling ;
-* observer le risque de fuite de données.
+Le but est de déterminer quel algorithme obtient les meilleurs résultats,
+tout en tenant compte de ses erreurs et de sa facilité d'utilisation.
 
 ## Datasets utilisés
 
-Deux datasets fournis par scikit-learn ont été utilisés.
+Deux datasets fournis par scikit-learn ont été utilisés :
 
-### Breast Cancer Wisconsin
-
-Ce dataset contient :
-
-* 569 observations ;
-* 30 variables ;
-* 2 classes : tumeur maligne ou tumeur bénigne.
-
-### Wine
-
-Ce dataset contient :
-
-* 178 observations ;
-* 13 variables ;
-* 3 classes.
+* **Breast Cancer Wisconsin** : 569 observations, 30 variables et
+  2 classes, tumeur maligne ou bénigne ;
+* **Wine** : 178 observations, 13 variables et 3 classes.
 
 ## Algorithmes comparés
 
@@ -60,51 +39,76 @@ Les trois algorithmes comparés sont :
 | 1    | Arbre de décision     | 94,44 %  |
 | 3    | KNN                   | 80,56 %  |
 
-## Effet du scaling
 
-La mise à l'échelle améliore surtout les algorithmes qui sont sensibles
-aux distances entre les observations, comme le KNN.
+## Analyse des erreurs
 
-La régression logistique peut également mieux converger lorsque les
-variables sont mises à la même échelle.
+L'accuracy ne suffit pas pour évaluer un modèle médical. Il faut aussi
+regarder les erreurs dans la matrice de confusion.
 
-L'arbre de décision est peu influencé par le scaling.
+Pour la régression logistique avant scaling, la matrice de confusion
+obtenue est :
 
-## Fuite de données
+|                    | Prédit maligne | Prédit bénigne |
+| ------------------ | -------------: | -------------: |
+| Réellement maligne |             39 |              3 |
+| Réellement bénigne |              1 |             71 |
 
-Dans la version honnête, le scaler est ajusté uniquement sur les données
-d'entraînement.
+Le modèle fait donc deux types d'erreurs :
 
-Dans la version avec fuite de données, le scaler est ajusté sur tout le
-dataset avant la séparation entre train et test.
+* 3 tumeurs malignes ont été prédites comme bénignes ;
+* 1 tumeur bénigne a été prédite comme maligne.
 
-Les deux versions ont obtenu une accuracy de 98,2456 %. La différence est
-donc de 0 %.
+L'erreur la plus grave est de classer une tumeur maligne comme bénigne.
+Elle pourrait retarder les examens ou la prise en charge du patient.
 
-Même si le résultat est identique dans ce cas, la méthode avec fuite reste
-incorrecte, car les données de test ont influencé la préparation des
-données.
+Une fausse alerte sur une tumeur bénigne reste problématique, mais elle est
+moins grave qu'une tumeur maligne non détectée.
+
+Dans une utilisation réelle, il faudrait donc surveiller particulièrement
+le nombre de tumeurs malignes prédites comme bénignes, et pas seulement
+l'accuracy globale.
 
 ## Champion retenu
 
-Le modèle retenu est : Régression logistique .
+Le champion retenu est la **régression logistique avec scaling**.
 
-Il a été choisi en tenant compte de son accuracy, mais aussi de sa vitesse,
-de son fonctionnement et du type d'erreurs qu'il réalise.
+**Régularité :**
+Elle obtient de bons résultats sur les deux datasets, contrairement au KNN
+qui baisse fortement sur Wine.
 
-Sur le dataset Breast Cancer, il est particulièrement important d'éviter
-de prédire qu'une tumeur maligne est bénigne, car cela pourrait retarder
-la prise en charge du patient.
+**Vitesse :**
+Son entraînement et ses prédictions sont rapides sur ce type de données.
+
+**Explicabilité :**
+Son fonctionnement peut être expliqué comme un calcul de probabilité à
+partir des différentes variables. L'arbre de décision reste plus visuel,
+mais la régression logistique offre ici un meilleur compromis entre
+performance et simplicité.
+
+
+## Fuite de données
+
+Deux méthodes ont été comparées :
+
+* une méthode honnête, avec un scaler ajusté uniquement sur le jeu
+  d'entraînement ;
+* une méthode incorrecte, avec un scaler ajusté sur tout le dataset avant
+  la séparation.
+
+Les deux méthodes ont obtenu une accuracy de 98,2456 %. La différence est
+donc de 0 point de pourcentage.
+
+Même si le score est identique dans ce cas, la deuxième méthode reste
+incorrecte. Elle utilise des informations provenant du jeu de test avant
+l'évaluation.
+
+En pratique, les données de test doivent rester totalement inconnues
+jusqu'à l'évaluation finale.
 
 ## Conclusion
 
-Ce projet montre qu'un algorithme n'est pas forcément le meilleur sur tous
-les datasets.
-
-L'accuracy est utile pour comparer les modèles, mais elle ne suffit pas
-toujours. La matrice de confusion permet de mieux comprendre les erreurs
-réalisées par le modèle.
-
-
+La régression logistique avec scaling est recommandée car elle présente le
+meilleur compromis entre performance, régularité, vitesse et
+explicabilité.
 
 
